@@ -3,17 +3,23 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
 import tensorflow as tf
-
+import json
 import pickle
 
 app = Flask(__name__)
 
 # Load the model
-mlp_model = load_model('mlp_housing.h5')
+mlp_model = tf.keras.models.load_model('mlp_housing.keras')
 
+# cat_columns = ['district', 'ward', 'location_type', 'season']
 
-linear_model = pickle.load(open('my_HaNoi_housing_linear_model.pkl', 'rb'))
-preprocessing_pipeline = pickle.load(open('preprocessing_pipeline.pkl', 'rb'))
+# for col in cat_columns:
+#     string_lookup_layer = mlp_model.get_layer(col)
+#     vocab_data = pd.read_csv(col + '_vocab.csv')
+#     string_lookup_layer.set_vocabulary(vocab_data[col].unique().tolist())
+
+# linear_model = pickle.load(open('my_HaNoi_housing_linear_model.pkl', 'rb'))
+# preprocessing_pipeline = pickle.load(open('preprocessing_pipeline.pkl', 'rb'))
 
 def split_date(housing):
   housing['month'] = housing['date'].str.split('/').str[0].astype(float)
@@ -37,6 +43,9 @@ def encodeDate(data, col, max_val):
   data[col + '_sin'] = np.sin(2 * np.pi * data[col]/max_val)
   data[col + '_cos'] = np.cos(2 * np.pi * data[col]/max_val)
   return data
+
+def utf8_encode(s):
+    return s.encode('utf-8')
 
 @app.route('/linear/predict', methods=['POST'])
 def predict():
@@ -82,15 +91,15 @@ def predict_mlp():
 
       string_columns = mlp_housing.select_dtypes(include=['object']).columns
       mlp_housing[string_columns] = mlp_housing[string_columns].astype(str)
-
-      print(mlp_housing['season'])
       
       cat_columns = ['district', 'ward', 'location_type', 'season']
       num_columns = ['number_of_bedrooms', 'area', 'year', 'month', 'day']
-      print([mlp_housing['address']])
-      prediction = mlp_model.predict([mlp_housing[num_columns]] + [mlp_housing[col] for col in cat_columns] + [mlp_housing['address']])
       
-      return jsonify({'Prediction': 0} ) 
+      prediction = mlp_model.predict([mlp_housing[num_columns]] + [mlp_housing[col] for col in cat_columns])
+      
+      print(prediction)
+      
+      return jsonify({'Prediction': prediction[0][0].astype(float)} ) 
     
     except Exception as e:
         return jsonify({'error': str(e)}), 400
