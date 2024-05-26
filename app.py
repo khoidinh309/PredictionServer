@@ -3,13 +3,14 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
 import tensorflow as tf
+import keras
 import json
 import pickle
 
 app = Flask(__name__)
 
 # Load the model
-mlp_model = tf.keras.models.load_model('mlp_housing.keras')
+mlp_model = tf.keras.models.load_model('./mlp_housing.keras')
 
 # cat_columns = ['district', 'ward', 'location_type', 'season']
 
