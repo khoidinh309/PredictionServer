@@ -12,15 +12,8 @@ app = Flask(__name__)
 # Load the model
 mlp_model = tf.keras.models.load_model('./mlp_housing.keras')
 
-# cat_columns = ['district', 'ward', 'location_type', 'season']
-
-# for col in cat_columns:
-#     string_lookup_layer = mlp_model.get_layer(col)
-#     vocab_data = pd.read_csv(col + '_vocab.csv')
-#     string_lookup_layer.set_vocabulary(vocab_data[col].unique().tolist())
-
-# linear_model = pickle.load(open('my_HaNoi_housing_linear_model.pkl', 'rb'))
-# preprocessing_pipeline = pickle.load(open('preprocessing_pipeline.pkl', 'rb'))
+linear_model = pickle.load(open('my_HaNoi_housing_linear_model.pkl', 'rb'))
+preprocessing_pipeline = pickle.load(open('preprocessing_pipeline.pkl', 'rb'))
 
 def split_date(housing):
   housing['month'] = housing['date'].str.split('/').str[0].astype(float)
@@ -106,4 +99,4 @@ def predict_mlp():
         return jsonify({'error': str(e)}), 400
   
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=5000, debug=False, host='0.0.0.0')
