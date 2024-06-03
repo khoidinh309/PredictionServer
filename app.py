@@ -10,6 +10,7 @@ import pickle
 app = Flask(__name__)
 
 # Load the model
+# Copy right DINH TIEN KHOI
 mlp_model = tf.keras.models.load_model('./mlp_housing.keras')
 
 linear_model = pickle.load(open('my_HaNoi_housing_linear_model.pkl', 'rb'))
